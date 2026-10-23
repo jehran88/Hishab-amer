@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="bn"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>দোকান হিসাব</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0F4C5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="হিসাব">
+<style>
+:root{--bg:#F2F5F7;--card:#fff;--ink:#14212B;--mute:#6B7A86;--line:#E1E7EB;--pri:#0F4C5C;--sale:#0E8A5F;--exp:#C8372D;--sale-bg:#E3F4EC;--exp-bg:#FBE9E7}
+@media(prefers-color-scheme:dark){:root{--bg:#0E171C;--card:#17242B;--ink:#E8EEF1;--mute:#8FA1AC;--line:#26353E;--pri:#5FD3A5;--sale:#4BCB96;--exp:#FF7B70;--sale-bg:#12332A;--exp-bg:#3A1F1D}}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,"Noto Sans Bengali","Kalpurush","Nirmala UI",sans-serif;background:var(--bg);color:var(--ink);padding-top:env(safe-area-inset-top);padding-bottom:calc(30px + env(safe-area-inset-bottom));min-height:100vh}
+main{max-width:560px;margin:0 auto;padding:14px 16px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.top h1{font-size:1.2rem;font-weight:800;border:0;background:none;color:var(--ink);font-family:inherit;padding:4px 0;max-width:70%}
+.menu{border:1px solid var(--line);background:var(--card);color:var(--ink);width:44px;height:44px;border-radius:12px;font-size:1.3rem}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font:inherit;color:var(--mute);font-weight:600}
+.seg button.on{background:var(--pri);color:var(--bg)}
+.hero{background:var(--pri);color:#fff;border-radius:20px;padding:18px 20px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+@media(prefers-color-scheme:dark){.hero{background:#0F3A44}}
+.hero small{opacity:.8;font-size:.9rem}
+.hero .big{font-size:2.2rem;font-weight:800;line-height:1.2}
+.hero .loss{color:#FFB4AC}.hero .gain{color:#8CF0C4}
+.hero .sub{text-align:right;font-size:.85rem;line-height:1.6}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.s{color:var(--sale)}.e{color:var(--exp)}
+input{width:100%;font:inherit;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:10px}
+input.amt{font-size:1.9rem;font-weight:800}
+.go{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.go button{padding:16px;border:0;border-radius:14px;font:inherit;font-size:1.05rem;font-weight:800;color:#fff}
+.go .sale{background:var(--sale)}.go .exp{background:var(--exp)}
+@media(prefers-color-scheme:dark){.go button{color:#0E171C}}
+.link{border:0;background:none;color:var(--mute);font:inherit;font-size:.85rem;padding:6px 0;text-decoration:underline}
+.bars{display:flex;align-items:flex-end;gap:8px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar div{display:flex;align-items:flex-end;gap:2px;height:80px;width:100%;justify-content:center}
+.bar i{display:block;width:40%;border-radius:4px 4px 0 0;min-height:2px}
+.bar span{font-size:.7rem;color:var(--mute)}
+h3{font-size:.95rem;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.dot{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none}
+.dot.sale{background:var(--sale-bg);color:var(--sale)}.dot.exp{background:var(--exp-bg);color:var(--exp)}
+.row .m{flex:1;min-width:0}.row .m div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .m small{color:var(--mute)}.row b{white-space:nowrap}
+.del{border:0;background:none;color:var(--mute);font-size:1.1rem;padding:8px}
+.empty{text-align:center;color:var(--mute);padding:20px 8px}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:20}
+.sheet.show{display:flex}
+.sheet>div{background:var(--card);width:100%;max-width:560px;margin:0 auto;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet button{display:block;width:100%;text-align:left;padding:15px 12px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:1rem}
+.sheet button:first-of-type{border-top:0}
+.sheet .danger{color:var(--exp);font-weight:700}
+.toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:20px;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+/* report */
+#report{display:none;position:fixed;inset:0;background:#fff;color:#111;overflow:auto;z-index:30;padding:calc(12px + env(safe-area-inset-top)) 16px 24px}
+#report.show{display:block}
+#report .bar2{display:flex;gap:10px;max-width:760px;margin:0 auto 12px}
+#report .bar2 button{flex:1;padding:13px;border-radius:12px;border:1px solid #cfd8dd;background:#fff;color:#111;font:inherit;font-weight:700}
+#report .bar2 .pr{background:#0F4C5C;color:#fff;border-color:#0F4C5C;flex:2}
+#report .rng{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}
+#report .rng input{background:#fff;color:#111;margin:0;border-color:#cfd8dd}
+.paper{max-width:760px;margin:0 auto;font-size:14px}
+.paper h2{font-size:22px;color:#0F4C5C}
+.paper .meta{color:#555;margin:2px 0 14px;font-size:13px}
+.paper table{width:100%;border-collapse:collapse;margin-top:10px}
+.paper th,.paper td{padding:7px 8px;border-bottom:1px solid #ddd;text-align:left}
+.paper th{background:#0F4C5C;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.paper td.n,.paper th.n{text-align:right;white-space:nowrap}
+.paper tfoot td{font-weight:800;border-top:2px solid #0F4C5C}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{border:1px solid #ddd;border-radius:8px;padding:10px}
+.sum small{color:#555;display:block}.sum b{font-size:19px}
+.paper .g{color:#0E8A5F}.paper .r{color:#C8372D}
+@media print{
+ body>*:not(#report){display:none!important}
+ #report{position:static;display:block!important;padding:0;overflow:visible}
+ #report .bar2,#report .rng{display:none}
+ @page{margin:14mm}
+}
+</style></head>
+<body>
+<main id="app"></main>
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()"><div>
+ <button onclick="openReport()">🖨️ রিপোর্ট / PDF বানান</button>
+ <button onclick="exportJSON()">💾 ব্যাকআপ ফাইল ডাউনলোড</button>
+ <button onclick="document.getElementById('imp').click()">📂 ব্যাকআপ রিস্টোর</button>
+ <button onclick="exportCSV()">📑 Excel (CSV) ডাউনলোড</button>
+ <button class="danger" onclick="resetAll()">🗑️ সব ডাটা মুছে নতুন করে শুরু</button>
+ <button onclick="closeSheet()">বন্ধ করুন</button>
+</div></div>
+<input id="imp" type="file" accept=".json" hidden onchange="importJSON(this.files[0])">
+<div id="report"></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const LS='hishab-data-v1',NM='hishab-shop-name';
+let data=[],range='day',showDate=false,showAll=false;
+try{data=JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){data=[]}
+let shop='দোকান হিসাব';try{shop=localStorage.getItem(NM)||shop}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(data))}catch(e){toast('সেভ করা যায়নি')}};
+const iso=d=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>iso(new Date());
+const tk=n=>'৳'+Math.round(n).toLocaleString('bn-BD');
+const bn=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const fd=d=>bn(d.split('-').reverse().join('/'));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function inRange(d){const t=today();if(range==='day')return d===t;if(range==='month')return d.slice(0,7)===t.slice(0,7);return true}
+function sums(l){let s=0,e=0;l.forEach(x=>x.type==='sale'?s+=x.amt:e+=x.amt);return{s,e,p:s-e}}
+const label={day:'আজ',month:'এই মাস',all:'সব সময়'};
+function render(){
+ const keep={a:($('#amt')||{}).value,n:($('#note')||{}).value,d:($('#date')||{}).value};
+ const l=data.filter(x=>inRange(x.date)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ const {s,e,p}=sums(l);
+ const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const k=iso(d);return{k,...sums(data.filter(x=>x.date===k))}});
+ const mx=Math.max(1,...days.flatMap(d=>[d.s,d.e]));
+ const bars=days.map(d=>`<div class="bar"><div><i style="height:${d.s/mx*100}%;background:var(--sale)"></i><i style="height:${d.e/mx*100}%;background:var(--exp)"></i></div><span>${bn(+d.k.slice(8))}</span></div>`).join('');
+ const shown=showAll?l:l.slice(0,8);
+ $('#app').innerHTML=`
+ <div class="top"><input style="margin:0;width:auto;background:none;border:0;padding:4px 0;font-size:1.2rem;font-weight:800" id="shop" value="${esc(shop)}" onchange="shop=this.value.trim()||'দোকান হিসাব';try{localStorage.setItem(NM,shop)}catch(e){}" aria-label="দোকানের নাম"><button class="menu" onclick="$('#sheet').classList.add('show')" aria-label="মেনু">⋯</button></div>
+ <div class="seg">${['day','month','all'].map(k=>`<button class="${range===k?'on':''}" onclick="range='${k}';showAll=false;render()">${label[k]}</button>`).join('')}</div>
+ <div class="hero"><div><small>${label[range]} ${p>=0?'লাভ':'লস'}</small><div class="big ${p>=0?'gain':'loss'}">${p<0?'−':''}${tk(Math.abs(p))}</div></div><div class="sub">বিক্রি ${tk(s)}<br>খরচ ${tk(e)}</div></div>
+ <div class="card">
+  <input id="amt" class="amt" type="number" inputmode="decimal" placeholder="টাকা লিখুন" value="${keep.a||''}">
+  <input id="note" type="text" placeholder="কিসের জন্য? (না লিখলেও চলবে)" value="${esc(keep.n||'')}">
+  ${showDate?`<input id="date" type="date" value="${keep.d||today()}">`:''}
+  <div class="go"><button class="sale" onclick="addEntry('sale')">+ বিক্রি</button><button class="exp" onclick="addEntry('exp')">− খরচ</button></div>
+  ${showDate?'':`<button class="link" onclick="showDate=true;render()">অন্য তারিখের এন্ট্রি?</button>`}
+ </div>
+ <div class="card"><h3>${label[range]}-এর এন্ট্রি</h3>${shown.length?shown.map(x=>`<div class="row"><div class="dot ${x.type}">${x.type==='sale'?'+':'−'}</div><div class="m"><div>${esc(x.note||(x.type==='sale'?'বিক্রি':'খরচ'))}</div><small>${fd(x.date)}</small></div><b class="${x.type==='sale'?'s':'e'}">${tk(x.amt)}</b><button class="del" onclick="del(${x.id})" aria-label="মুছুন">✕</button></div>`).join(''):'<div class="empty">এখনও কোনো এন্ট্রি নেই। উপরে টাকা লিখে বিক্রি বা খরচ চাপুন।</div>'}
+ ${l.length>8&&!showAll?`<button class="link" onclick="showAll=true;render()">সব ${bn(l.length)}টি দেখুন</button>`:''}</div>
+ <div class="card"><h3>শেষ ৭ দিন <span class="s">● বিক্রি</span> <span class="e">● খরচ</span></h3><div class="bars">${bars}</div></div>`}
+function addEntry(type){
+ const amt=parseFloat($('#amt').value);
+ if(!(amt>0)){toast('আগে টাকার পরিমাণ লিখুন');$('#amt').focus();return}
+ data.push({id:Date.now(),type,amt,note:$('#note').value.trim(),date:($('#date')||{}).value||today()});
+ save();showDate=false;$('#amt').value='';$('#note').value='';render();toast(type==='sale'?'বিক্রি যোগ হয়েছে ✓':'খরচ যোগ হয়েছে ✓')}
+function del(id){if(confirm('এই এন্ট্রি মুছবেন?')){data=data.filter(x=>x.id!==id);save();render()}}
+function closeSheet(){$('#sheet').classList.remove('show')}
+/* report */
+let rf,rt;
+function openReport(){closeSheet();const t=new Date();rf=iso(new Date(t.getFullYear(),t.getMonth(),1));rt=today();drawReport();$('#report').classList.add('show')}
+function drawReport(){
+ const l=data.filter(x=>x.date>=rf&&x.date<=rt).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+ const {s,e,p}=sums(l);
+ $('#report').innerHTML=`<div class="bar2"><button onclick="$('#report').classList.remove('show')">← ফিরে যান</button><button class="pr" onclick="window.print()">🖨️ PDF সেভ / প্রিন্ট</button></div>
+ <div class="rng"><input type="date" id="rf" value="${rf}" onchange="rf=this.value;drawReport()"><input type="date" id="rt" value="${rt}" onchange="rt=this.value;drawReport()"></div>
+ <div class="paper"><h2>${esc(shop)}</h2><div class="meta">হিসাবের রিপোর্ট: ${fd(rf)} থেকে ${fd(rt)} &nbsp;|&nbsp; তৈরি: ${fd(today())}</div>
+ <div class="sum"><div><small>মোট বিক্রি</small><b class="g">${tk(s)}</b></div><div><small>মোট খরচ</small><b class="r">${tk(e)}</b></div><div><small>${p>=0?'নিট লাভ':'নিট লস'}</small><b class="${p>=0?'g':'r'}">${p<0?'−':''}${tk(Math.abs(p))}</b></div></div>
+ <table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th class="n">বিক্রি</th><th class="n">খরচ</th></tr></thead><tbody>
+ ${l.length?l.map(x=>`<tr><td>${fd(x.date)}</td><td>${esc(x.note||'—')}</td><td class="n g">${x.type==='sale'?tk(x.amt):''}</td><td class="n r">${x.type==='exp'?tk(x.amt):''}</td></tr>`).join(''):'<tr><td colspan="4">এই সময়ে কোনো এন্ট্রি নেই</td></tr>'}
+ </tbody><tfoot><tr><td colspan="2">মোট</td><td class="n g">${tk(s)}</td><td class="n r">${tk(e)}</td></tr></tfoot></table></div>`}
+/* backup */
+function dl(n,t,y){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:y}));a.download=n;a.click();closeSheet()}
+const exportJSON=()=>dl('hishab-backup-'+today()+'.json',JSON.stringify(data),'application/json');
+const exportCSV=()=>dl('hishab-'+today()+'.csv','\ufeffতারিখ,ধরন,টাকা,বিবরণ\n'+data.map(x=>[x.date,x.type==='sale'?'বিক্রি':'খরচ',x.amt,'"'+x.note.replace(/"/g,'""')+'"'].join(',')).join('\n'),'text/csv');
+function importJSON(f){if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;data=d;save();closeSheet();render();toast('রিস্টোর হয়েছে ✓')}catch(e){toast('ফাইলটি সঠিক নয়')}};r.readAsText(f)}
+function resetAll(){
+ if(!confirm('সব এন্ট্রি মুছে যাবে!\nআগে ব্যাকআপ নিয়ে রেখেছেন তো?\n\nনিশ্চিত মুছবেন?'))return;
+ if(!confirm('শেষবার জিজ্ঞাসা: সত্যিই সব ডাটা মুছে ফেলবেন?'))return;
+ data=[];save();closeSheet();render();toast('নতুন করে শুরু হয়েছে')}
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+render();
+</script></body></html>
